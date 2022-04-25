@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -7,20 +7,36 @@ import {
   ScrollView,
   Button,
 } from "react-native";
-import IconButton from "../components/IconButton";
+import { useDispatch, useSelector } from "react-redux";
 
+import IconButton from "../components/IconButton";
 import List from "../components/MealDetai/List";
 import Subtitle from "../components/MealDetai/Subtitle";
 import MealDetails from "../components/MealDetails";
 import { MEALS } from "../data/dummy-data";
+import { addFavorite, removeFavorite } from "../store/redux/favorites";
+// import { FavoritesContext } from "../store/context/favotire-context";
 
 function MealDetailScreen({ route, navigation }) {
+  // const favoriteMealsCtx = useContext(FavoritesContext);
+  const favoriteMealIds = useSelector((state) => state.favoriteMeals.ids);
+  const dispatch = useDispatch();
+
   const mealId = route.params.mealId;
 
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  function headerButtonHandler() {
-    console.log("cac");
+  // const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
+
+  function changeFavoritetatusHandler() {
+    if (mealIsFavorite) {
+      // favoriteMealsCtx.removeFaorite(mealId);
+      dispatch(removeFavorite({ id: mealId }));
+    } else {
+      // favoriteMealsCtx.addFavorite(mealId);
+      dispatch(addFavorite({ id: mealId }));
+    }
   }
 
   useLayoutEffect(() => {
@@ -28,15 +44,15 @@ function MealDetailScreen({ route, navigation }) {
       headerRight: () => {
         return (
           <IconButton
-            onPress={headerButtonHandler}
-            icon={"star"}
+            onPress={changeFavoritetatusHandler}
+            icon={mealIsFavorite ? "star" : "star-outline"}
             size={24}
             color={"white"}
           />
         );
       },
     });
-  }, [navigation, headerButtonHandler]);
+  }, [navigation, changeFavoritetatusHandler]);
 
   return (
     <ScrollView style={styles.rootContainer}>
